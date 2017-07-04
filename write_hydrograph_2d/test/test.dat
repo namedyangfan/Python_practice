@@ -1,0 +1,35 @@
+clear chosen nodes 
+choose nodes top 2d-list 
+	 ./test/Assiniboine_River_At_Headingley.dat 
+
+set hydrograph nodes 
+	 Assiniboine_River_At_Headingley 
+!------------------------------------------------- 
+clear chosen nodes 
+choose nodes top 2d-list 
+	 ./test/Assiniboine_River_At_Kamsack.dat 
+
+set hydrograph nodes 
+	 Assiniboine_River_At_Kamsack 
+!------------------------------------------------- 
+clear chosen nodes 
+choose nodes top 2d-list 
+	 ./test/Assiniboine_River_Near_Brandon.dat 
+
+set hydrograph nodes 
+	 Assiniboine_River_Near_Brandon 
+!------------------------------------------------- 
+clear chosen nodes 
+choose nodes top 2d-list 
+	 ./test/Assiniboine_River_Near_Holland.dat 
+
+set hydrograph nodes 
+	 Assiniboine_River_Near_Holland 
+!------------------------------------------------- 
+clear chosen nodes 
+choose nodes top 2d-list 
+	 ./test/Assiniboine_River_Near_Russell.dat 
+
+set hydrograph nodes 
+	 Assiniboine_River_Near_Russell 
+!------------------------------------------------- 
