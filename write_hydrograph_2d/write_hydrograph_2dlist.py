@@ -4,7 +4,7 @@ import glob, warnings
 def read_node(file_path, file_rel_path, output_path,ldebug):
 
 	if os.path.exists(output_path):
-		warnings.warn(' File exists {}'.format(output_path))
+		warnings.warn(' File exists {} \n'.format(output_path))
 
 	for file in file_path:
 

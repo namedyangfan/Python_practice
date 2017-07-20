@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import numpy as np
+import warnings
 
 class write_obs_coord:
     def __init__(self,file_name,file_path,save_file_name,save_file_path,layer_num_start,layer_num_end):
@@ -10,9 +11,23 @@ class write_obs_coord:
         self.layer_num_end = layer_num_end
 
     
-    def readfile(self):
+    def readfile(self, ldebug=False):
+
+        if not os.path.exists(self.summary_file):
+            print("ERROR: file does not exist {}\n".format(self.summary_file))
+            return
+
         coord = pd.read_csv(self.summary_file)
+
+        if len(coord.columns)>3:
+            warnings.warn('\n the file contains more than three columns. Only the first three {} is used. File: {}'.format(coord.columns[0:3],self.summary_file))
         
+        coord = coord.iloc[:,0:3]
+
+        if ldebug: print(coord)
+
+        coord.columns = ['Station_Na','UTMX','UTMY']
+
         self.coord = (coord[['Station_Na','UTMX','UTMY']])
         
         self.coord['Station_Na'] = self.coord.Station_Na.astype('str')
