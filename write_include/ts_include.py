@@ -59,6 +59,8 @@ class Write_ts_include():
         df_slice = df_slice[(df_slice[self.Date_col] >= a) & (df_slice[self.Date_col] <= b)]
         df_slice[self.Date_col] = (df_slice[self.Date_col] - df_slice[self.Date_col].iloc[0]).dt.total_seconds()
         df_slice[self.Date_col] = df_slice[self.Date_col].apply(int)
+        df_slice[self.value_col] = df_slice[self.value_col].apply(float)
+        print(df_slice.tail(200))
         self.df_slice = df_slice
         
         # a = hl.time_to_numeric(a)
@@ -76,6 +78,6 @@ class Write_ts_include():
         '''
             write out the sliced data 
         '''
-        self.df_slice.to_csv(self.o_path, sep=" ", header=False, index=False)
+        self.df_slice.to_csv(self.o_path, sep=" ", header=False, index=False, float_format='%.4f')
 
 

@@ -15,6 +15,6 @@ setup(
         'Operating System :: Microsoft :: Windows',
         ],
     keywords = 'hydrogeosphere',
-    packages = ['convert_tecplot'],
+    packages = ['convert_tecplot', 'write_include'],
     install_requires = ['numpy', 'pandas'],
       )
