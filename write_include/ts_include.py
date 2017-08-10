@@ -60,7 +60,6 @@ class Write_ts_include():
         df_slice[self.Date_col] = (df_slice[self.Date_col] - df_slice[self.Date_col].iloc[0]).dt.total_seconds()
         df_slice[self.Date_col] = df_slice[self.Date_col].apply(int)
         df_slice[self.value_col] = df_slice[self.value_col].apply(float)
-        print(df_slice.tail(200))
         self.df_slice = df_slice
         
         # a = hl.time_to_numeric(a)
