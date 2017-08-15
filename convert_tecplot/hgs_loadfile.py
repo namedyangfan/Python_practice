@@ -21,9 +21,11 @@ def time_to_numeric(t, format='%Y-%m-%d %H:%M'):
     
     return(a)
 
-def read_tecplot(file_directory, file_name, sep='\t'):
+def read_tecplot(file_directory, file_name, sep='\t', ldebug=False):
+    ''' read tecplot as data frame
+        sep: set equal to \s for space delimited
+    '''
     file_path = os.path.join(file_directory, file_name)
-
         # Load column names
     if not os.path.exists(file_path):
         raise FileNotFoundError(
@@ -35,18 +37,24 @@ def read_tecplot(file_directory, file_name, sep='\t'):
                 header = line.strip() [11:]
             if re.match(r"^\d+.*$",line):
                 skip_num = num
+                if ldebug: print('number of row to skip: {}'.format(skip_num))
                 break
+
+    if ldebug: print(header)
 
     # replace "" and seperate string to list of names 
     column_names = header.replace('"'," ").replace(','," ").split(' ')
     column_names = [x for x in column_names if x]
+    if ldebug: print(column_names)
     # column_names = list(map(str.strip, column_names))
     try:
         df= pd.read_table (file_path, 
                 header=None,
                 sep= sep,
-              skiprows = num
+              skiprows = skip_num,
+              engine='python'
               )
+        if ldebug: print(df.shape)
     except:
         print('ERROR: unable to open file {}'.format(file_path))
 
@@ -99,8 +107,6 @@ def colum_match(left, right, left_on = 'Date', right_on = 'Date'):
     else:
         raise TypeError('ERROR: right need to be dataframe or np.array')
     return (df_merge)
-
-
 
 
 
