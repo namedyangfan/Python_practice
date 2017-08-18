@@ -2,8 +2,8 @@ from setuptools import setup
 
 setup(
     name='hgs_tool',
-    version='1.0',
-    description = 'A Python package for working with HGS.',
+    version='1.1',
+    description = 'A Python package for working with HGS.' ,
     author = 'Fan Yang',
     license = 'MIT',
     classifiers = [

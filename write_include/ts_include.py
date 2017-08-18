@@ -39,7 +39,7 @@ class Write_ts_include():
             value_col: column that is going to be used as flow rate
         '''
         self.inc_directory = inc_directory
-        self.inc_path = os.path.join(inc_directory,inc_name)
+        self.inc_path = glob.glob(os.path.join(inc_directory,"*" + inc_name + "*"))[0]
         if not os.path.exists(self.inc_path):
             print("File not found: {0}".format(self.inc_path))
             return None

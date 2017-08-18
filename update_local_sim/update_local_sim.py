@@ -62,9 +62,10 @@ class Update_local_sim():
     def walk_lst_remote(self):
         ''' read the list file and print out the current timestep'''
         while not self.end_simu_flag:
-        # backup_copy = self.remote_lst + '.preunsat_original'
-        # shutil.copy(self.remote_lst, backup_copy)
-            with open (self.remote_lst) as fhandl:
+            backup_copy = self.remote_lst + '.preunsat_original'
+            shutil.copy(self.remote_lst, backup_copy)
+            time.sleep(30)
+            with open (backup_copy) as fhandl:
 
                 for line in fhandl:
                     # print out the TIMESTEP
@@ -73,6 +74,8 @@ class Update_local_sim():
                         t = line.strip().split()[-1]
                         if int(t) > self.timestep: 
                             self.timestep= int(t)
+                            sys.stdout.flush()
+                            sys.stdout.write('{}\tSOLUTION FOR TIMESTEP: {} \n'.format(os.path.basename(self.remote_directory), self.timestep))
 
                     elif "SIMULATION TIME REPORT" in line.strip():
                         # end_simu_flag true means simulation is completed
@@ -80,9 +83,7 @@ class Update_local_sim():
                         while line:
                             print(line)
                             line = fhandl.readline()
-            sys.stdout.flush()
-            sys.stdout.write('{}\tSOLUTION FOR TIMESTEP: {} \n'.format(os.path.basename(self.remote_directory), self.timestep))
-            time.sleep(5)
+
 
     def cp_file (self, types= ['*.lst','*.hen','*hydrograph.*', '*observation_well_flow.*', '*.grok'], ldebug=False):
         ''' After simulation is completed, move the files from remote to local'''
