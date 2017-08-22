@@ -63,7 +63,11 @@ class Update_local_sim():
         ''' read the list file and print out the current timestep'''
         while not self.end_simu_flag:
             backup_copy = self.remote_lst + '.preunsat_original'
-            shutil.copy(self.remote_lst, backup_copy)
+            try:
+                shutil.copy(self.remote_lst, backup_copy)
+            except:
+                print("Not able to copy lst file")
+                
             time.sleep(30)
             with open (backup_copy) as fhandl:
 
