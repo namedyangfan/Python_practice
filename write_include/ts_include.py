@@ -52,15 +52,20 @@ class Write_ts_include():
     def slice_df(self,a,b):
         ''' slice starting from a to b
             convert date to second starting from zero
+            a is considered as the starting point, nomatter whether it exist in the data
         '''
-
+        # take the Date and value columns
         df_slice = self.df[[self.Date_col,self.value_col]]
+        # convert Date column to np.datatime64
         df_slice[self.Date_col] = pd.to_datetime(df_slice[self.Date_col], format=self.format)
         df_slice = df_slice[(df_slice[self.Date_col] >= a) & (df_slice[self.Date_col] <= b)]
-        df_slice[self.Date_col] = (df_slice[self.Date_col] - df_slice[self.Date_col].iloc[0]).dt.total_seconds()
+        #prepare start_date column for calcualting dt
+        df_slice['start_date'] = a
+        df_slice['start_date'] = pd.to_datetime(df_slice['start_date'], format=self.format)
+        #calculate dt in second
+        df_slice[self.Date_col] = (df_slice[self.Date_col] - df_slice['start_date']).dt.total_seconds()
         df_slice[self.Date_col] = df_slice[self.Date_col].apply(int)
-        df_slice[self.value_col] = df_slice[self.value_col].apply(float)
-        self.df_slice = df_slice
+        self.df_slice = df_slice.drop('start_date', axis=1)
         
         # a = hl.time_to_numeric(a)
         # b = hl.time_to_numeric(b)
@@ -77,6 +82,7 @@ class Write_ts_include():
         '''
             write out the sliced data 
         '''
+        ## float_format solves the problem that to_csv generate too much sigfig
         self.df_slice.to_csv(self.o_path, sep=" ", header=False, index=False, float_format='%.4f')
 
 
