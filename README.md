@@ -6,7 +6,7 @@ The write_include module can be used to slice and format data to HGS format.
 
 # API Reference
   
-**convert_tecplot**
+**convert_tecplot**  
 *hgs_loadfile.time_to_numeric(): convert time from ISO8601 format to excel time (numeric in days since 1900)
 *hgs_loadfile.time_to_numeric(): 
 
