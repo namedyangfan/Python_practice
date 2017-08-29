@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='hgs_tool',
-    version='1.1',
+    version='1.3',
     description = 'A Python package for working with HGS.' ,
     author = 'Fan Yang',
     license = 'MIT',
@@ -15,6 +15,6 @@ setup(
         'Operating System :: Microsoft :: Windows',
         ],
     keywords = 'hydrogeosphere',
-    packages = ['convert_tecplot', 'write_include'],
+    packages = ['convert_tecplot', 'write_include', 'compare_data'],
     install_requires = ['numpy', 'pandas'],
       )
