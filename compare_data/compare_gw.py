@@ -5,8 +5,10 @@ import os, errno, re
 class Obs_well_hgs():
 
     def __init__(self, file_directory, file_name):
-        ''' read in Tecplot format well observation data
-            calcualte depth of head to ground surface
+        ''' read in Tecplot format simulated well data
+            and calcualte depth of head to ground surface
+            
+            To convert the block format to column format, 'HGS_obswell_Tecplot.R' can be used
         '''
         self.file_directory = file_directory
         self.file_name = file_name
