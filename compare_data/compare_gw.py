@@ -35,7 +35,7 @@ class Obs_well_hgs():
 
 class Compare_simu2obs():
 
-    def __init__(self):
+    def __init__(self,obs_direct,obs_fn,simu_direct,simu_fn,obs_var = ['date' ,'DTGS'],t0="2002/01/01"):
         ''' 
         plot the simulated groundwater head versus the modeled groundwater head
 
@@ -50,14 +50,14 @@ class Compare_simu2obs():
                 2. file name must be included in the file name of 
                 3. 'time' is in simulation time
         '''
-        self.obs_var = ['date' ,'DTGS']
-        self.obs_direct = r'.\test_data\Compare_simu2obs'
-        self.obs_fn = '38973_G05MH030.dat'
+        self.obs_var = obs_var
+        self.obs_direct = obs_direct
+        self.obs_fn = obs_fn
         self.obs_path = os.path.join(self.obs_direct, self.obs_fn)
-        self.simu_direct = r'.\test_data\Compare_simu2obs'
-        self.simu_fn = 'G05MH030.dat'
+        self.simu_direct = simu_direct
+        self.simu_fn = simu_fn
         self.simu_path = os.path.join(self.simu_direct, self.simu_fn)
-        self.t0 = "2002/01/01"
+        self.t0 = t0
 
     def read_files(self, ldebug=False):
         self.obs_df = hl.read_tecplot(file_directory=self.obs_direct, file_name=self.obs_fn, sep=',')
@@ -77,12 +77,16 @@ class Compare_simu2obs():
             print(self.simu_df.head())
             print(self.obs_df.head())
 
-    def plot_depth(self, o_folder):
+    def plot_depth(self, o_folder,ldebug=False):
         ''' Plot the observed versus the simulated '''
         if not os.path.exists(o_folder):
             print("Folder not found: {0}".format(o_folder))
             return None
         o_path = os.path.join(o_folder, os.path.splitext(self.obs_fn)[0])
+        if ldebug:
+            print(os.path.splitext(self.obs_fn)[0])
+            print(o_folder)
+            print(o_path)
         ## set minimum number of lines  
         minline= 50
         ## check if there is enough data to plot
@@ -95,9 +99,9 @@ class Compare_simu2obs():
             plt.xlabel('Date')
             plt.ylabel('Depth')
             plt.savefig(o_path)
+            plt.close()
         else:
             print('{} has less than {} lines \n no plot is generated for this station'.format(self.obs_fn, minline))
-
 
 if __name__ == "__main__":
     file_directory = r'./test_data/Obs_well_hgs'
@@ -106,6 +110,10 @@ if __name__ == "__main__":
     test.open_obs()
     test.head_to_depth()
     test.op(op_folder= r'./test_data/Obs_well_hgs/output')
-    test2 = Compare_simu2obs()
+
+    test2 = Compare_simu2obs(obs_direct = r"./test_data/Compare_simu2obs",
+                            obs_fn = "38973_G05MH030.dat",
+                            simu_direct = r"./test_data/Compare_simu2obs",
+                            simu_fn = "G05MH030.dat")
     test2.read_files()
-    test2.plot_depth(o_folder=r"D:\git\HGS_tools\compare_data\test_data\Compare_simu2obs")
+    test2.plot_depth(o_folder=r"./test_data/Compare_simu2obs")

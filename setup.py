@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(
-    name='hgs_tool',
+    name='hgs_tools',
     version='1.3',
     description = 'A Python package for working with HGS.' ,
     author = 'Fan Yang',
