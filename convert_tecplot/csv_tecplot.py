@@ -20,7 +20,7 @@ def csv_tecplot(df, save_folder, zone_name, save_name=False, ldebug=False):
     
     tecplot_header = 'variables='
     for i in range(0, len(df.columns)):
-        tecplot_header = '{} ,"{}"'.format(tecplot_header,df.columns[i])
+        tecplot_header = '{} "{}"'.format(tecplot_header,df.columns[i])
 
     code = (tecplot_header + 
             '\n zone t= "{}" \n\n'.format(zone_name))

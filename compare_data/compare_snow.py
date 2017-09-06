@@ -3,7 +3,7 @@ import numpy as np
 import os
 import errno
 import re
-from ..convert_tecplot import hgs_loadfile
+from .convert_tecplot import hgs_loadfile
 
 def compare_snow(obs_file_directory, obs_file_name, simu_file_directory, simu_file_name, station_name, obs_col= ['Date','SWE.m.'], ldebug=False):
     '''
