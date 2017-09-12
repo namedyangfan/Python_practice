@@ -4,7 +4,7 @@ import numpy as np
 
 
 
-def csv_tecplot(df, save_folder, zone_name, save_name=False, ldebug=False):
+def csv_tecplot(df, save_folder, zone_name, save_name=False, ldebug=False, float_format='%.3f'):
     ''' convert csv to tecplot format
         df: as dataframe
         column name is used as variable  
@@ -27,5 +27,5 @@ def csv_tecplot(df, save_folder, zone_name, save_name=False, ldebug=False):
 
     with open(save_path + '.dat', 'w') as f:
         f.write( code )    
-        df.to_csv(f, index = False, header = False)
+        df.to_csv(f, index = False, header = False, float_format = float_format)
 
