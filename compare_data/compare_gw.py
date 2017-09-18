@@ -15,20 +15,106 @@ class Obs_well_hgs():
         '''
         self.file_directory = file_directory
         self.file_name = file_name
+        self.file_path = os.path.join(self.file_directory, self.file_name)
+        if not os.path.exists(self.file_path):
+            print("Folder not found: {0}".format(self.file_path))
+        return None
+
+    def read_raw_obs (self, ldebug=False):
+        ''' read block formatted observation well data'''
+        ## initialize number of sheet in the file
+        num_sheet = 0
+        ## initialize variable names 
+        var_name = []
+        ## initialize 
+        line_start = None
+        line_end = None
+
+        ## read the variable name and calcualte the number of layers
+        with open(self.file_path, 'r') as handl:
+            for num,line in enumerate(handl):
+                line = line.strip()
+                if line.lower().startswith ("variable"):
+                    header = line.strip() [11:]
+                else:
+                    if re.match(r"^\d+.*$",line) and not line_start:
+                        line_start = num
+                    elif line_start and not re.match(r"^\d+.*$",line):
+                        line_end = num
+                        break
+
+        column_names = header.replace('"'," ").replace(','," ").split(' ')
+        self.column_names = [x for x in column_names if x]
+        self.num_sheets = line_end - line_start
+        if ldebug: print('number of sheets: {}'.format(line_end - line_start))
+
+        ## read chunk as list
+        with open(self.file_path, 'r') as handl:
+            chunk = list(line.strip().split() for line in handl if re.match(r"^\d+.*$",line.strip()))
+            # convert chunk to dataframe
+            # data frame is easier for sheet slicing
+            self.chunk_df = pd.DataFrame(chunk)
+            self.chunk_df.columns = self.column_names
+        with open(self.file_path, 'r') as handl:
+            self.timeseries = list( line.split()[-1] for line in handl if line.strip().startswith('zone') )
+
+    def reorder_raw2column (self, var_names = ['H', 'S', 'Z'], start_sheet = None, end_sheet = None, ldebug=False):
+        ''' reorder the simulated well data to column format
+        hgs counts sheet bottom up, the observation well output is bottom up as well
+        start_sheet: sheet number count from model bottom
+        end_sheet: sheet number count from model bottom
+        '''
+        ## take all the sheets if start_sheet or end sheet is not specified
+        if not start_sheet: start_sheet = 1
+
+        if not end_sheet: end_sheet = self.num_sheets
+
+        if end_sheet<start_sheet: raise ValueError('start_sheet "{}" and end_sheet"{}" are incorrect'.format(start_sheet, end_sheet))
+        
+        ## convert dataframe to matrix easier for slicing
+        chunk_array = self.chunk_df.values
+        ## slice row by the from start sheet to end sheet for each variable 
+        ## sheet start from '1' and index start from '0'
+        n = ((chunk_array[sheet::self.num_sheets,self.column_names.index(var)]) for sheet in range(start_sheet-1,end_sheet) for var in var_names)
+        ## convert to datafrmae and change column name
+        col_name = list('{}{}'.format(var,sheet) for sheet in range(start_sheet, end_sheet+1) for var in var_names)
+        self.chunk_reorder = pd.DataFrame.from_records(list(n)).T
+        self.chunk_reorder.columns = col_name
+        ## add timestamp 
+        self.chunk_reorder.insert(0,'time', self.timeseries)
+        if ldebug: print(self.chunk_reorder.head())
+        
 
     def open_obs(self):
-        file_path = os.path.join(self.file_directory, self.file_name)
+        
         self.df = hl.read_tecplot(file_directory=self.file_directory, file_name=self.file_name, sep='\s')
 
-    def head_to_depth(self):
-        head_sheets = [x for x in self.df.columns if re.search('H', x)]
-        self.num_sheet = list(head_sheets[-1])[-1]
+    def head_to_depth(self, ldebug=False):
+        '''calcualte the depth of groundwater head
+        Assumptions:
+        1 df is either opened via open_obs or processed via reorder_raw2column
+        2 df has column format as "time" "H5" "Z5" "H6" "Z6"
+        3 in the above case, two layer is detected and Z6 is the surface elevation
+        '''
+        try:
+            self.df.columns
+        except:
+            self.df = self.chunk_reorder
+
+        ## get the head columns
+        head_sheets = list(x for x in self.df.columns if re.search('H', x))
+        if len(head_sheets) <1: raise ValueError('Head:(H) is not found. {}'.format(self.df.head()))
+        self.num_sheet = head_sheets[-1][-1]
+        if ldebug: print('Surface Layer Number: {}'.format(self.num_sheet))
+
         #get the surface elevation
         top_elev_var = 'Z' + self.num_sheet
-        # print(self.df[top_elev_var])
+        if ldebug: print('Top elevation: \n {}'.format(self.df[top_elev_var].head()))
+        
         for sheet in head_sheets:
             depth_var = 'depth_' + sheet
-            self.df[depth_var] = self.df[top_elev_var] - self.df[sheet]
+            self.df[depth_var] = self.df[top_elev_var].astype(float) - self.df[sheet].astype(float)
+        if ldebug: print(self.df.head())
 
     def op (self, op_folder):
         csv_tecplot(df = self.df, save_folder = op_folder, zone_name = os.path.splitext(self.file_name)[0])
@@ -117,3 +203,10 @@ if __name__ == "__main__":
                             simu_fn = "G05MH030.dat")
     test2.read_files()
     test2.plot_depth(o_folder=r"./test_data/Compare_simu2obs")
+
+    ## test Obs_well_hgs
+    test2 = Obs_well_hgs( file_directory = file_directory, file_name='ARB_QUAPo.observation_well_flow.Baildon059.dat')
+    test2.read_raw_obs( ldebug=False)
+    test2.reorder_raw2column(var_names = ['H', 'Z'], start_sheet = 5, end_sheet = 6, ldebug=False)
+    test2.head_to_depth(ldebug=False)
+    test2.op(op_folder = r"D:\git\HGS_tools\compare_data\test_data\Obs_well_hgs\output")
