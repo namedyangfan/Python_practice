@@ -1,6 +1,6 @@
 from convert_tecplot import hgs_loadfile as hl
 from convert_tecplot import csv_tecplot
-import os, errno, re
+import os, errno, re, arrow
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
@@ -8,10 +8,23 @@ import numpy as np
 class Obs_well_hgs():
 
     def __init__(self, file_directory, file_name):
-        ''' read in Tecplot format simulated well data
-            and calcualte depth of head to ground surface for each sheet
-            
-            To convert the block format to column format, 'HGS_obswell_Tecplot.R' can be used
+        ''' 
+        HGS generate observation well output provides measurements like head, soil moisture, and elevation for 
+        each simulation time step in block format. The purpose of this script is to post process the data into
+        column format and 
+
+                read_raw_obs: read hgs observation well output (block format)
+
+                reorder_raw2column: convert bloc format to column format
+                
+                head_to_depth: convert head to depth from surface elevation
+                
+                to_realtime: convert simulation time (in seconds) to ISO time 
+
+                avg_weekly: averge all the columns on ISO calender week
+
+                op: output the processed data as CSV format
+
         '''
         self.file_directory = file_directory
         self.file_name = file_name
@@ -56,7 +69,7 @@ class Obs_well_hgs():
             self.chunk_df = pd.DataFrame(chunk)
             self.chunk_df.columns = self.column_names
         with open(self.file_path, 'r') as handl:
-            self.timeseries = list( line.split()[-1] for line in handl if line.strip().startswith('zone') )
+            self.timeseries = list( float(line.split()[-1]) for line in handl if line.strip().startswith('zone') )
 
     def reorder_raw2column (self, var_names = ['H', 'S', 'Z'], start_sheet = None, end_sheet = None, ldebug=False):
         ''' reorder the simulated well data to column format
@@ -78,11 +91,12 @@ class Obs_well_hgs():
         n = ((chunk_array[sheet::self.num_sheets,self.column_names.index(var)]) for sheet in range(start_sheet-1,end_sheet) for var in var_names)
         ## convert to datafrmae and change column name
         col_name = list('{}{}'.format(var,sheet) for sheet in range(start_sheet, end_sheet+1) for var in var_names)
-        self.chunk_reorder = pd.DataFrame.from_records(list(n)).T
-        self.chunk_reorder.columns = col_name
+        self.df = pd.DataFrame.from_records(list(n)).T
+        self.df = self.df.apply(pd.to_numeric)
+        self.df.columns = col_name
         ## add timestamp 
-        self.chunk_reorder.insert(0,'time', self.timeseries)
-        if ldebug: print(self.chunk_reorder.head())
+        self.df.insert(0,'time', self.timeseries)
+        if ldebug: print(self.df.head())
         
 
     def open_obs(self):
@@ -99,7 +113,7 @@ class Obs_well_hgs():
         try:
             self.df.columns
         except:
-            self.df = self.chunk_reorder
+            self.df = self.df
 
         ## get the head columns
         head_sheets = list(x for x in self.df.columns if re.search('H', x))
@@ -116,8 +130,29 @@ class Obs_well_hgs():
             self.df[depth_var] = self.df[top_elev_var].astype(float) - self.df[sheet].astype(float)
         if ldebug: print(self.df.head())
 
+    def to_realtime(self, t0 = '2002-01-01T00:00:00Z', ldebug=False):
+        ''' convert simulation time to realtime. t0: start of the simulation '''
+        if not 'time' in self.df.columns: raise ValueError('"time" is not found \n {}'.format(self.df.head()))
+        self.df['elapsed_time']  = self.df['time']
+        self.df['time']  = self.df['time'].map(lambda t: arrow.get(t0).replace(seconds=+t))
+
+    def avg_weekly(self):
+        ''' take the weekly average of all the variables'''
+        ## check if time has been converted to ISO format
+        ## defination of ISO calender https://www.staff.science.uu.nl/~gent0113/calendar/isocalendar.htm
+        if not isinstance(self.df['time'][0], arrow.Arrow):
+            print('time is not instance of arrow. \n{} '.format(self.df['time'].head()))
+
+        self.df['week'] = self.df['time'].map(lambda t: t.isocalendar()[1])
+        self.df['year'] = self.df['time'].map(lambda t: t.isocalendar()[0])
+
+        ## This is to show ISO year can be different from nomal year
+        # list(print(i) for i in self.df.time if i.isocalendar()[0] != i.year) 
+
+        self.df = self.df.groupby(['year','week'], sort=False).mean()
+
     def op (self, op_folder):
-        csv_tecplot(df = self.df, save_folder = op_folder, zone_name = os.path.splitext(self.file_name)[0])
+        csv_tecplot(df = self.df, save_folder = op_folder, zone_name = os.path.splitext(self.file_name)[0], float_format='%.6f')
 
 class Compare_simu2obs():
 
@@ -192,21 +227,23 @@ class Compare_simu2obs():
 if __name__ == "__main__":
     file_directory = r'./test_data/Obs_well_hgs'
     file_name = 'G05MD001.dat'
-    test = Obs_well_hgs( file_directory = file_directory, file_name=file_name)
-    test.open_obs()
-    test.head_to_depth()
-    test.op(op_folder= r'./test_data/Obs_well_hgs/output')
+    # test = Obs_well_hgs( file_directory = file_directory, file_name=file_name)
+    # test.open_obs()
+    # test.head_to_depth()
+    # test.op(op_folder= r'./test_data/Obs_well_hgs/output')
 
-    test2 = Compare_simu2obs(obs_direct = r"./test_data/Compare_simu2obs",
-                            obs_fn = "38973_G05MH030.dat",
-                            simu_direct = r"./test_data/Compare_simu2obs",
-                            simu_fn = "G05MH030.dat")
-    test2.read_files()
-    test2.plot_depth(o_folder=r"./test_data/Compare_simu2obs")
+    # test2 = Compare_simu2obs(obs_direct = r"./test_data/Compare_simu2obs",
+    #                         obs_fn = "38973_G05MH030.dat",
+    #                         simu_direct = r"./test_data/Compare_simu2obs",
+    #                         simu_fn = "G05MH030.dat")
+    # test2.read_files()
+    # test2.plot_depth(o_folder=r"./test_data/Compare_simu2obs")
 
     ## test Obs_well_hgs
     test2 = Obs_well_hgs( file_directory = file_directory, file_name='ARB_QUAPo.observation_well_flow.Baildon059.dat')
     test2.read_raw_obs( ldebug=False)
-    test2.reorder_raw2column(var_names = ['H', 'Z'], start_sheet = 5, end_sheet = 6, ldebug=False)
-    test2.head_to_depth(ldebug=False)
+    test2.reorder_raw2column(var_names = ['S'], start_sheet = 5, end_sheet = 6, ldebug=False)
+    test2.to_realtime()
+    test2.avg_weekly()
+    # test2.head_to_depth(ldebug=False)
     test2.op(op_folder = r"D:\git\HGS_tools\compare_data\test_data\Obs_well_hgs\output")
