@@ -24,8 +24,8 @@ class Obs_well_hgs():
                 avg_weekly: averge all the columns on ISO calender week
 
                 op: output the processed data as CSV format
-
         '''
+
         self.file_directory = file_directory
         self.file_name = file_name
         self.file_path = os.path.join(self.file_directory, self.file_name)
@@ -133,24 +133,44 @@ class Obs_well_hgs():
     def to_realtime(self, t0 = '2002-01-01T00:00:00Z', ldebug=False):
         ''' convert simulation time to realtime. t0: start of the simulation '''
         if not 'time' in self.df.columns: raise ValueError('"time" is not found \n {}'.format(self.df.head()))
+        self.t0 = t0
         self.df['elapsed_time']  = self.df['time']
         self.df['time']  = self.df['time'].map(lambda t: arrow.get(t0).replace(seconds=+t))
 
-    def avg_weekly(self):
+    def avg_weekly(self, date_format = None, ldebug=False):
         ''' take the weekly average of all the variables'''
         ## check if time has been converted to ISO format
         ## defination of ISO calender https://www.staff.science.uu.nl/~gent0113/calendar/isocalendar.htm
         if not isinstance(self.df['time'][0], arrow.Arrow):
             print('time is not instance of arrow. \n{} '.format(self.df['time'].head()))
 
-        self.df['week'] = self.df['time'].map(lambda t: t.isocalendar()[1])
-        self.df['year'] = self.df['time'].map(lambda t: t.isocalendar()[0])
+        ## convert date to year week
+        self.df['ISO_week'] = self.df['time'].map(lambda t: t.isocalendar()[1])
+        self.df['ISO_year'] = self.df['time'].map(lambda t: t.isocalendar()[0])
+        if ldebug: print('Data before aggregation: \n {}'.format(self.df.head(10)))
 
         ## This is to show ISO year can be different from nomal year
         # list(print(i) for i in self.df.time if i.isocalendar()[0] != i.year) 
 
-        self.df = self.df.groupby(['year','week'], sort=False).mean()
+        ## weekly mean for each year
+        self.df = self.df.groupby(['ISO_year','ISO_week'], sort=False, as_index=False).mean()
+        if ldebug: print('Data after aggregation: \n {}'.format(self.df.head(10)))
 
+        ## write date_mid_week '20020102' and its numeric form
+        if date_format: 
+            ## assume: Wednesday (middle of week)
+            self.df.insert(0,'date_mid_week', self.df['ISO_year'].astype(str) + '-' + self.df['ISO_week'].astype(str) + '-3' )
+            try:
+                ## arrow.Arrow.strptime(x, "%G-%V-%w") takes ISO_year and ISO_week produce regular date. 
+                self.df['date_mid_week'] = self.df['date_mid_week'].apply(lambda x: arrow.Arrow.strptime(x, "%G-%V-%u").format(date_format))
+            except:
+                raise ValueError('Not able to write date format {}. \n {}'.format(date_format, self.df['date_mid_week'].head()))
+            ## write numeric date
+            try:
+                self.df['date_mid_week_numeric']= hl.time_to_numeric(self.df['date_mid_week'], format = date_format)
+            except:
+                raise ValueError('Not able to write date format {}. \n {}'.format(date_format, self.df['date_mid_week'].head()))
+            
     def op (self, op_folder):
         csv_tecplot(df = self.df, save_folder = op_folder, zone_name = os.path.splitext(self.file_name)[0], float_format='%.6f')
 
@@ -244,6 +264,6 @@ if __name__ == "__main__":
     test2.read_raw_obs( ldebug=False)
     test2.reorder_raw2column(var_names = ['S'], start_sheet = 5, end_sheet = 6, ldebug=False)
     test2.to_realtime()
-    test2.avg_weekly()
+    test2.avg_weekly(date_format= 'YYYYMMDD')
     # test2.head_to_depth(ldebug=False)
     test2.op(op_folder = r"D:\git\HGS_tools\compare_data\test_data\Obs_well_hgs\output")

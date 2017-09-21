@@ -12,18 +12,30 @@ colum_match: find the common row or merge data.frame
 '''
 
 def time_to_numeric(t, format='%Y-%m-%d %H:%M'):
-    ''' convert time from ISO8601 format to numeric in days since 1900'''
-    ref_date = '1900-01-01 00:00'
+    ''' convert time from ISO8601 format to numeric in days since 1900
+        The format is default as %Y%m%d, however YYYYMMDD format also work
+        YYYYMMDD is convinience for arrow object
+    '''
 
+    ## reference date: exel numeric date format counts number of days after 1900-01-01
+    ref_date = '1900-01-01 00:00'
+    date_format = format
+
+    ## %Y%m%d format 
     try:
         a = pd.to_datetime(t, format = format) - pd.to_datetime(ref_date, format ='%Y-%m-%d %H:%M')
         a = a/np.timedelta64(1, 'D') + 2
+
     except:
-        if not isinstance(t, pd.DataFrame):
-            t = pd.DataFrame([t])
+            pass
+    ## YYYYMMDD format
+    try:
         start_date = arrow.get(ref_date, 'YYYY-MM-DD HH:mm')
-        a = t.applymap(lambda x: (arrow.get(x, format = 'YYYY-MM-DD') - start_date).days + 2)
-        a = a.values
+        # a = t.map(lambda x: ((arrow.get(str(x), date_format) - start_date).days) +2)
+        a = [((arrow.get(str(x), date_format) - start_date).days) +2 for x in t]
+    except:
+        raise ValueError('Not able to convert dataframe to format {}. \n {}'.format(date_format, t))
+
     return(a)
 
 def read_tecplot(file_directory, file_name, sep='\t', ldebug=False):
