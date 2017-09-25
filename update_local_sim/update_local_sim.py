@@ -78,8 +78,8 @@ class Update_local_sim():
                         t = line.strip().split()[-1]
                         if int(t) > self.timestep: 
                             self.timestep= int(t)
-                            sys.stdout.flush()
-                            sys.stdout.write('{}\tSOLUTION FOR TIMESTEP: {} \n'.format(os.path.basename(self.remote_directory), self.timestep))
+                            # sys.stdout.flush()
+                            # print('{}\tSOLUTION FOR TIMESTEP: {} \n'.format(os.path.basename(self.remote_directory), self.timestep))
 
                     elif "SIMULATION TIME REPORT" in line.strip():
                         # end_simu_flag true means simulation is completed
@@ -88,21 +88,22 @@ class Update_local_sim():
                             print(line)
                             line = fhandl.readline()
 
+                print('{}\tSOLUTION FOR TIMESTEP: {} \n'.format(os.path.basename(self.remote_directory), self.timestep))
+                sys.stdout.flush()
 
     def cp_file (self, types= ['*.lst','*.hen','*hydrograph.*', '*observation_well_flow.*', '*.grok'], ldebug=False):
         ''' After simulation is completed, move the files from remote to local'''
 
-        if self.end_simu_flag:
-                # set up glob.glob pattern 
-                types_path = [os.path.join(self.remote_directory, i) for i in types]
-                files_grabbed=[]
-                # get a list of files that need to be copied
-                files_grabbed.extend(glob.glob(e) for e in types_path)
-                files_grabbed = [y for x in files_grabbed for y in x]
-                if ldebug: [print(files_grabbed) for x in files_grabbed]
-                if len(files_grabbed) == 0: warnings.warn( 'WARNING: No file has been moved')
-                [shutil.copy(x, self.local_directory) for x in files_grabbed]
-                print('{} files have beens move to {} \n from '.format(len(files_grabbed), self.local_directory, self.remote_directory))
+        # set up glob.glob pattern 
+        types_path = [os.path.join(self.remote_directory, i) for i in types]
+        files_grabbed=[]
+        # get a list of files that need to be copied
+        files_grabbed.extend(glob.glob(e) for e in types_path)
+        files_grabbed = [y for x in files_grabbed for y in x]
+        if ldebug: [print(files_grabbed) for x in files_grabbed]
+        if len(files_grabbed) == 0: warnings.warn( 'WARNING: No file has been moved')
+        [shutil.copy(x, self.local_directory) for x in files_grabbed]
+        print('{} files have beens move to {} \n from '.format(len(files_grabbed), self.local_directory, self.remote_directory))
 
 if __name__ == "__main__":
     remote_directory = r"X:\26-33-SARB_daily_47764Nodes"
