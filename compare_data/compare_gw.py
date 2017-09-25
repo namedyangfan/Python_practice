@@ -84,6 +84,8 @@ class Obs_well_hgs():
 
         if end_sheet<start_sheet: raise ValueError('start_sheet "{}" and end_sheet"{}" are incorrect'.format(start_sheet, end_sheet))
         
+        if end_sheet>self.num_sheets: raise ValueError('end_sheet"{}" are incorrect'.format(end_sheet))
+        
         ## convert dataframe to matrix easier for slicing
         chunk_array = self.chunk_df.values
         ## slice row by the from start sheet to end sheet for each variable 
@@ -138,7 +140,11 @@ class Obs_well_hgs():
         self.df['time']  = self.df['time'].map(lambda t: arrow.get(t0).replace(seconds=+t))
 
     def avg_weekly(self, date_format = None, ldebug=False):
-        ''' take the weekly average of all the variables'''
+        ''' take the weekly average of all the variables
+            if date_format is provided, the following variables are produced:
+                date_mid_week: Gregorian Calender year month and mid of week
+                date_mid_week_numeric: date_mid_week expressed in Excel date format
+        '''
         ## check if time has been converted to ISO format
         ## defination of ISO calender https://www.staff.science.uu.nl/~gent0113/calendar/isocalendar.htm
         if not isinstance(self.df['time'][0], arrow.Arrow):
@@ -176,7 +182,7 @@ class Obs_well_hgs():
 
 class Compare_simu2obs():
 
-    def __init__(self,obs_direct,obs_fn,simu_direct,simu_fn,obs_var = ['date' ,'DTGS'],t0="2002/01/01"):
+    def __init__(self,obs_direct,obs_fn,simu_direct,simu_fn,obs_var = ['date' ,'DTGS'],t0="2002-01-01"):
         ''' 
         plot the simulated groundwater head versus the modeled groundwater head
 
@@ -220,6 +226,7 @@ class Compare_simu2obs():
 
     def plot_depth(self, o_folder,ldebug=False):
         ''' Plot the observed versus the simulated '''
+        ## assume: plotting depth_H2 and depth_H3 in the simulation files
         if not os.path.exists(o_folder):
             print("Folder not found: {0}".format(o_folder))
             return None
@@ -233,9 +240,10 @@ class Compare_simu2obs():
         ## check if there is enough data to plot
         if self.obs_df.shape[0] >= minline:
             fig = plt.figure()
-            plt.plot(self.obs_df['date'], self.obs_df['DTGS'])
             plt.plot(self.simu_df['time'], self.simu_df['depth_H2'])
             plt.plot(self.simu_df['time'], self.simu_df['depth_H3'])
+            plt.plot(self.obs_df['date'], self.obs_df['DTGS'])
+            plt.xlim([self.simu_df['time'].min(), self.simu_df['time'].max()])
             plt.legend()
             plt.xlabel('Date')
             plt.ylabel('Depth')
