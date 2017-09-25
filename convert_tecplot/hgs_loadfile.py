@@ -23,8 +23,9 @@ def time_to_numeric(t, format='%Y-%m-%d %H:%M'):
 
     ## %Y%m%d format 
     try:
-        a = pd.to_datetime(t, format = format) - pd.to_datetime(ref_date, format ='%Y-%m-%d %H:%M')
+        a = pd.to_datetime(t, format = date_format) - pd.to_datetime(ref_date, format ='%Y-%m-%d %H:%M')
         a = a/np.timedelta64(1, 'D') + 2
+        return(a)
 
     except:
             pass
@@ -33,10 +34,9 @@ def time_to_numeric(t, format='%Y-%m-%d %H:%M'):
         start_date = arrow.get(ref_date, 'YYYY-MM-DD HH:mm')
         # a = t.map(lambda x: ((arrow.get(str(x), date_format) - start_date).days) +2)
         a = [((arrow.get(str(x), date_format) - start_date).days) +2 for x in t]
+        return(a)
     except:
         raise ValueError('Not able to convert dataframe to format {}. \n {}'.format(date_format, t))
-
-    return(a)
 
 def read_tecplot(file_directory, file_name, sep='\t', ldebug=False):
     ''' read tecplot as data frame
