@@ -1,8 +1,4 @@
-# Project Title
-
-compare_gw
-
-## Getting Started
+# compare_gw
 
         HGS generate observation well output provides measurements like head, soil moisture, and elevation for 
         each simulation time step in block format. The purpose of this script is to post process the data into
@@ -12,10 +8,21 @@ compare_gw
         *convert simulation time to real time
         *average data on weekly average
 		
-### Prerequisites
+## Usage
 
-What things you need to install the software and how to install them
+            * read_raw_obs: read hgs observation well output (block format)
 
+            * reorder_raw2column: convert bloc format to column format
+            
+            * head_to_depth: convert head to depth from surface elevation
+            
+            * to_realtime: convert simulation time (in seconds) to ISO time 
+
+            * avg_weekly: averge all the columns on ISO calender week
+
+            * op: output the processed data as CSV format
+
+			
 ```
 Give examples
 ```
