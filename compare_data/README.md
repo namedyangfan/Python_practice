@@ -1,11 +1,17 @@
 # Project Title
 
-One Paragraph of project description goes here
+compare_gw
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
-
+        HGS generate observation well output provides measurements like head, soil moisture, and elevation for 
+        each simulation time step in block format. The purpose of this script is to post process the data into
+        column format and perform transformation including:
+		
+		*convert head to depth
+        *convert simulation time to real time
+        *average data on weekly average
+		
 ### Prerequisites
 
 What things you need to install the software and how to install them
