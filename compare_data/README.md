@@ -3,10 +3,9 @@
 HGS generate observation well output provides measurements like head, soil moisture, and elevation for 
 each simulation time step in block format. The purpose of this script is to post process the data into
 column format and perform transformation including:
-		
-		*convert head to depth
-        *convert simulation time to real time
-        *average data on weekly average
+*convert head to depth
+*convert simulation time to real time
+*average data on weekly average
 		
 ## Usage
 
