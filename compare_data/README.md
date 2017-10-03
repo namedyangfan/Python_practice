@@ -24,8 +24,8 @@ column format and perform transformation including:
 # Method
 
 ## *class* compare_gw(*file_directory, file_name*)
-	file_directory: directory of the *.observation_well_flow.* file.
-	file_name: *.observation_well_flow.* file name 
+file_directory: directory of the *.observation_well_flow.* file.
+file_name: *.observation_well_flow.* file name 
 ```
 Obs_well_hgs( file_directory = file_directory, file_name='ARB_QUAPo.observation_well_flow.Baildon059.dat')
 ```
