@@ -49,8 +49,7 @@ calcualte the depth of groundwater head. The elevation of the top sheet is used 
 convert simulation time to real time. 
 - t0: the starting date of the simulation in ISO8601 format
 
-
-###compare_gw. **avg_weekly(date_format = None)**
+### compare_gw. **avg_weekly(date_format = None)**
 
 take the weekly average of all the variables. 
 
