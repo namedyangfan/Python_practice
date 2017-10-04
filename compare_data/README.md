@@ -70,7 +70,7 @@ output the data in Tecplot format
 - float_format: digit number for float
 
 # Example
-##	reorder *.observation_well_flow.*
+##		reorder *.observation_well_flow.*
 ```
         file_directory = r'./test_data/Obs_well_hgs'
         file_name = 'ARB_QUAPo.observation_well_flow.Baildon059.dat'
