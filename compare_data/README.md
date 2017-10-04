@@ -51,7 +51,7 @@ take the weekly average of all the variables.
 if date_format is provided, the following variables are produced:
 - date_mid_week: Gregorian Calender year month and mid of week
 - date_mid_week_numeric: date_mid_week expressed in Excel date format
-'''
+```
 compare_gw.avg_weekly(date_format= 'YYYYMMDD')
 
 output:
@@ -60,7 +60,7 @@ output:
 "date_mid_week_numeric":
 37258
 
-'''
+```
 
 
 
