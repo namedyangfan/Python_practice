@@ -50,7 +50,7 @@ convert simulation time to real time.
 - t0: the starting date of the simulation in ISO8601 format
 
     ### compare_gw. **avg_weekly(date_format = None)**
-take the weekly average of all the variables. 
+        take the weekly average of all the variables. 
 
 if date_format is provided, the following variables are produced:
 - date_mid_week: [Gregorian Calender](https://www.staff.science.uu.nl/~gent0113/calendar/isocalendar.htm) year month and mid of week
