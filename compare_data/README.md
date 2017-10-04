@@ -63,13 +63,13 @@ output:
 "date_mid_week" : 20020102
 "date_mid_week_numeric": 37258
 ```
-### compare_gw. op(op_folder, zone_name = None, float_format = '%.6f')**
+### compare_gw. op(op_folder, zone_name = None, float_format = '%.6f')
 output the data in Tecplot format
 - op_folder: a directory of the output.
 - zone_name: output file name, also zone name in Tecplot
 - float_format: digit number for float
 
-#Example
+# Example
 ## reorder *.observation_well_flow.*
 ```
         file_directory = r'./test_data/Obs_well_hgs'
