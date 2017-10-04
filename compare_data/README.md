@@ -70,19 +70,46 @@ output the data in Tecplot format
 - float_format: digit number for float
 
 # Example
-##    reorder *.observation_well_flow.*
+##reorder *.observation_well_flow.*
 ```
-        file_directory = r'./test_data/Obs_well_hgs'
-        file_name = 'ARB_QUAPo.observation_well_flow.Baildon059.dat'
-        test = Obs_well_hgs( file_directory = file_directory, file_name=file_name)
-        # read 'ARB_QUAPo.observation_well_flow.Baildon059.dat'
-        test.read_raw_obs()
-        # extract variables H, Z, and S from sheet 3 to sheet 6. Then reorder the data to column format
-        test.reorder_raw2column(var_names = ['H', 'Z', 'S'], start_sheet = 3, end_sheet = 6, ldebug=False)
-        # save data in tecplot format
-        test.op(op_folder = r'./test_data/Obs_well_hgs/output', zone_name = 'Baildon059_reorder')
+file_directory = r'./test_data/Obs_well_hgs'
+file_name = 'ARB_QUAPo.observation_well_flow.Baildon059.dat'
+test = Obs_well_hgs( file_directory = file_directory, file_name=file_name)
+# read 'ARB_QUAPo.observation_well_flow.Baildon059.dat'
+test.read_raw_obs()
+# extract variables H, Z, and S from sheet 3 to sheet 6. Then reorder the data to column format
+test.reorder_raw2column(var_names = ['H', 'Z', 'S'], start_sheet = 3, end_sheet = 6, ldebug=False)
+# save data in tecplot format
+test.op(op_folder = r'./test_data/Obs_well_hgs/output', zone_name = 'Baildon059_reorder')
 ```
-
-
-
-
+##convert head(H) to depth 
+```
+file_directory = r'./test_data/Obs_well_hgs'
+file_name = 'ARB_QUAPo.observation_well_flow.Baildon059.dat'
+test = Obs_well_hgs( file_directory = file_directory, file_name=file_name)
+test.read_raw_obs()
+test.reorder_raw2column(var_names = ['H', 'Z', 'S'], start_sheet = 3, end_sheet = 6, ldebug=False)
+test.head_to_depth()
+test.op(op_folder = r'./test_data/Obs_well_hgs/output', zone_name = 'Baildon059_head_2_depth')
+```
+##convert simulation time to real time
+```
+file_directory = r'./test_data/Obs_well_hgs'
+file_name = 'ARB_QUAPo.observation_well_flow.Baildon059.dat'
+test = Obs_well_hgs( file_directory = file_directory, file_name= file_name)
+test.read_raw_obs()
+test.reorder_raw2column(var_names = ['H', 'Z', 'S'], start_sheet = 3, end_sheet = 6, ldebug=False)
+test.to_realtime(t0 = '2002-01-01T00:00:00Z')
+test.op(op_folder = r'./test_data/Obs_well_hgs/output', zone_name = 'Baildon059_realtime')
+```
+##take weekly average of soil moisture
+```
+file_directory = r'./test_data/Obs_well_hgs'
+file_name = 'ARB_QUAPo.observation_well_flow.Baildon059.dat'
+test = Obs_well_hgs( file_directory = file_directory, file_name= file_name)
+test.read_raw_obs()
+test.reorder_raw2column(var_names = ['H', 'Z', 'S'], start_sheet = 5, end_sheet = 6, ldebug=False)
+test.to_realtime(t0 = '2002-01-01T00:00:00Z')
+test.avg_weekly(date_format= 'YYYYMMDD')
+test.op(op_folder = r'./test_data/Obs_well_hgs/output', zone_name = 'Baildon059_weekly_soil_moisture')
+```
