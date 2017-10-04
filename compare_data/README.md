@@ -70,7 +70,7 @@ output the data in Tecplot format
 - float_format: digit number for float
 
 # Example
-##reorder *.observation_well_flow.*
+## reorder *.observation_well_flow.*
 ```
 file_directory = r'./test_data/Obs_well_hgs'
 file_name = 'ARB_QUAPo.observation_well_flow.Baildon059.dat'
@@ -82,7 +82,7 @@ test.reorder_raw2column(var_names = ['H', 'Z', 'S'], start_sheet = 3, end_sheet 
 # save data in tecplot format
 test.op(op_folder = r'./test_data/Obs_well_hgs/output', zone_name = 'Baildon059_reorder')
 ```
-##convert head(H) to depth 
+## convert head(H) to depth 
 ```
 file_directory = r'./test_data/Obs_well_hgs'
 file_name = 'ARB_QUAPo.observation_well_flow.Baildon059.dat'
@@ -92,7 +92,7 @@ test.reorder_raw2column(var_names = ['H', 'Z', 'S'], start_sheet = 3, end_sheet 
 test.head_to_depth()
 test.op(op_folder = r'./test_data/Obs_well_hgs/output', zone_name = 'Baildon059_head_2_depth')
 ```
-##convert simulation time to real time
+## convert simulation time to real time
 ```
 file_directory = r'./test_data/Obs_well_hgs'
 file_name = 'ARB_QUAPo.observation_well_flow.Baildon059.dat'
@@ -102,7 +102,7 @@ test.reorder_raw2column(var_names = ['H', 'Z', 'S'], start_sheet = 3, end_sheet 
 test.to_realtime(t0 = '2002-01-01T00:00:00Z')
 test.op(op_folder = r'./test_data/Obs_well_hgs/output', zone_name = 'Baildon059_realtime')
 ```
-##take weekly average of soil moisture
+## take weekly average of soil moisture
 ```
 file_directory = r'./test_data/Obs_well_hgs'
 file_name = 'ARB_QUAPo.observation_well_flow.Baildon059.dat'
