@@ -70,17 +70,17 @@ output the data in Tecplot format
 - float_format: digit number for float
 
 # Example
-##		reorder *.observation_well_flow.*
+##    reorder *.observation_well_flow.*
 ```
         file_directory = r'./test_data/Obs_well_hgs'
         file_name = 'ARB_QUAPo.observation_well_flow.Baildon059.dat'
         test = Obs_well_hgs( file_directory = file_directory, file_name=file_name)
-		# read 'ARB_QUAPo.observation_well_flow.Baildon059.dat'
+        # read 'ARB_QUAPo.observation_well_flow.Baildon059.dat'
         test.read_raw_obs()
-		# extract variables H, Z, and S from sheet 3 to sheet 6. Then reorder the data to column format
+        # extract variables H, Z, and S from sheet 3 to sheet 6. Then reorder the data to column format
         test.reorder_raw2column(var_names = ['H', 'Z', 'S'], start_sheet = 3, end_sheet = 6, ldebug=False)
         # save data in tecplot format
-		test.op(op_folder = r'./test_data/Obs_well_hgs/output', zone_name = 'Baildon059_reorder')
+        test.op(op_folder = r'./test_data/Obs_well_hgs/output', zone_name = 'Baildon059_reorder')
 ```
 
 
