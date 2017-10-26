@@ -69,7 +69,7 @@ output the data in Tecplot format
 - zone_name: output file name, also zone name in Tecplot
 - float_format: digit number for float
 
-# Example
+# Examples
 ## reorder *.observation_well_flow.*
 ```
 file_directory = r'./test_data/Obs_well_hgs'
@@ -113,3 +113,6 @@ test.to_realtime(t0 = '2002-01-01T00:00:00Z')
 test.avg_weekly(date_format= 'YYYYMMDD')
 test.op(op_folder = r'./test_data/Obs_well_hgs/output', zone_name = 'Baildon059_weekly_soil_moisture')
 ```
+
+## Tests
+A set of tests are provided: `test_compare_gw.py`. These are based on a set of output files from the Qu'Appelle sub-basin model.

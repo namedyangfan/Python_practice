@@ -11,19 +11,25 @@ class Obs_well_hgs():
         ''' 
         HGS generate observation well output provides measurements like head, soil moisture, and elevation for 
         each simulation time step in block format. The purpose of this script is to post process the data into
-        column format and 
+        column format and perform transformation including:
+        
+            convert head to depth
+            convert simulation time to real time
+            average data on weekly average
+    
+        Usage:
 
-                read_raw_obs: read hgs observation well output (block format)
+            read_raw_obs: read hgs observation well output (block format)
 
-                reorder_raw2column: convert bloc format to column format
-                
-                head_to_depth: convert head to depth from surface elevation
-                
-                to_realtime: convert simulation time (in seconds) to ISO time 
+            reorder_raw2column: convert bloc format to column format
+            
+            head_to_depth: convert head to depth from surface elevation
+            
+            to_realtime: convert simulation time (in seconds) to ISO time 
 
-                avg_weekly: averge all the columns on ISO calender week
+            avg_weekly: averge all the columns on ISO calender week
 
-                op: output the processed data as CSV format
+            op: output the processed data as CSV format
         '''
 
         self.file_directory = file_directory
@@ -137,7 +143,7 @@ class Obs_well_hgs():
         if not 'time' in self.df.columns: raise ValueError('"time" is not found \n {}'.format(self.df.head()))
         self.t0 = t0
         self.df['elapsed_time']  = self.df['time']
-        self.df['time']  = self.df['time'].map(lambda t: arrow.get(t0).replace(seconds=+t))
+        self.df['time']  = self.df['time'].map(lambda t: arrow.get(t0).shift(seconds=+t)) # ".replace" is replaced by ".shift"
 
     def avg_weekly(self, date_format = None, ldebug=False):
         ''' take the weekly average of all the variables
@@ -177,8 +183,10 @@ class Obs_well_hgs():
             except:
                 raise ValueError('Not able to write date format {}. \n {}'.format(date_format, self.df['date_mid_week'].head()))
             
-    def op (self, op_folder):
-        csv_tecplot(df = self.df, save_folder = op_folder, zone_name = os.path.splitext(self.file_name)[0], float_format='%.6f')
+    def op (self, op_folder, zone_name = None, float_format = '%.6f'):
+        if not zone_name:
+            zone_name = os.path.splitext(self.file_name)[0]
+        csv_tecplot(df = self.df, save_folder = op_folder, zone_name = zone_name, float_format=float_format)
 
 class Compare_simu2obs():
 
@@ -255,10 +263,7 @@ class Compare_simu2obs():
 if __name__ == "__main__":
     file_directory = r'./test_data/Obs_well_hgs'
     file_name = 'G05MD001.dat'
-    # test = Obs_well_hgs( file_directory = file_directory, file_name=file_name)
-    # test.open_obs()
-    # test.head_to_depth()
-    # test.op(op_folder= r'./test_data/Obs_well_hgs/output')
+
 
     # test2 = Compare_simu2obs(obs_direct = r"./test_data/Compare_simu2obs",
     #                         obs_fn = "38973_G05MH030.dat",

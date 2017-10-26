@@ -124,6 +124,3 @@ def colum_match(left, right, left_on = 'Date', right_on = 'Date'):
     else:
         raise TypeError('ERROR: right need to be dataframe or np.array')
     return (df_merge)
-
-
-
